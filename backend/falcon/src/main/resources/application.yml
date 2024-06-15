@@ -1,2 +1,9 @@
 server:
   port: 8083
+
+open-weather-map:
+  #  FIXME: Temporally available, for testing propose. SHOULD REMOVE IT.
+  apiKeyV2: bd5e378503939ddaee76f12ad7a97608 # random from https://gist.github.com/lalithabacies/c8f973dc6754384d6cade282b64a8cb1
+  apiKeyV3: 87ec2b8f0b40a00a3bdaf5f31953a186
+
+
