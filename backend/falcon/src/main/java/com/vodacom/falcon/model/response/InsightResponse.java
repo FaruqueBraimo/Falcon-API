@@ -10,8 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class InsightResponse {
-    private String country;
-    private String city;
     private EconomyInsightResponse economyInsight;
     private double exchangeRate;
     private WeatherForecastResponse weatherForecast;

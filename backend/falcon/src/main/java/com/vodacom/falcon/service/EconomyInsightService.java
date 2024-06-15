@@ -39,6 +39,7 @@ public class EconomyInsightService {
                                     case POPULATION_INDICATOR_PARAM -> {
                                         economyInsightResponse.setPopulation(Long.valueOf(f.getValue()));
                                         economyInsightResponse.setYear(Long.valueOf(f.getDate()));
+                                        economyInsightResponse.setCountry(f.getCountry().value());
                                     }
                                     case GDP_INDICATOR_PARAM -> economyInsightResponse.setGDP(new BigDecimal(f.getValue()));
                                     default -> log.info("Unrecognized indicator {}", f.getIndicator());

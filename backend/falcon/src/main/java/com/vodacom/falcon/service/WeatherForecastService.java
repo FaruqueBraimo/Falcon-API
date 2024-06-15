@@ -43,11 +43,14 @@ public class WeatherForecastService {
             return null;
         }
 
-        String url = String.format("%s/data/%s/onecall?units=metric&cnt=4&exclude=hourly,minutely,alerts&lat=%s&lon=%s&appid=%s", FalconDefaults.OPEN_WEATHER_BASE_URL, OPEN_WEATHER_API_VERSION, location.lat(), location.lon(), openWeatherApiKeyV2);
+        String url = String.format("%s/data/%s/onecall?units=metric&cnt=4&exclude=hourly,minutely,alerts&lat=%s&lon=%s&appid=%s", FalconDefaults.OPEN_WEATHER_BASE_URL, OPEN_WEATHER_API_VERSION, location.getLat(), location.getLon(), openWeatherApiKeyV2);
         HttpResponse<String> response = APICaller.getData(url);
         if (response != null) {
-            System.out.println(response.body());
-            return deserialize(response.body(), OpenWeatherForecastResponse.class);
+            OpenWeatherForecastResponse openWeatherForecast = deserialize(response.body(), OpenWeatherForecastResponse.class);
+            if (openWeatherForecast != null) {
+                openWeatherForecast.setLocation(location);
+                return openWeatherForecast;
+            }
         }
         return null;
     }

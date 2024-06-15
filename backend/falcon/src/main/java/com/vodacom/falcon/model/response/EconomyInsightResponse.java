@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @ToString
 public class EconomyInsightResponse {
+    private String country;
     private Long population;
     private BigDecimal GDP;
     private Long year;
