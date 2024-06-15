@@ -9,10 +9,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
-public class APIClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(APIClient.class);
+public class APICaller {
+    private static final Logger LOGGER = LoggerFactory.getLogger(APICaller.class);
 
     public static HttpResponse<String> getData(String url) {
         LOGGER.info("Getting data from {} url: ", url);
@@ -36,7 +36,7 @@ public class APIClient {
             HttpResponse<String> response = buildHttpClient()
                     .send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                throw new Exception(String.format("Non-success response requesting: %s with status code: %s , body: %s", request.uri(), response.statusCode(), response.body()));
+                throw new Exception(String.format("Error requesting resource: %s with status code: %s , body: %s", request.uri(), response.statusCode(), response.body()));
             }
             return response;
         });
@@ -45,11 +45,10 @@ public class APIClient {
     private static RetryPolicy<HttpResponse<String>> buildRetryPolicy() {
         return RetryPolicy.<HttpResponse<String>>builder()
                 .handle(Exception.class)
-                .withDelay(Duration.ofSeconds(30))
+                .withBackoff(1, 5, ChronoUnit.SECONDS)
                 .withMaxRetries(5)
-                .onRetry(event -> LOGGER.info("Retrying: {} attempt", event.getAttemptCount()))
-                .onFailedAttempt(event -> LOGGER.warn("Failed attempt: {}", event.getAttemptCount()))
-                .onSuccess(event -> LOGGER.info("Successful http call attempt"))
+                .onRetry(event -> LOGGER.info("Retry: {} ", event.getAttemptCount()))
+                .onFailedAttempt(event -> LOGGER.warn("Error requesting: {}", event.getAttemptCount()))
                 .build();
     }
 
