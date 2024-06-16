@@ -31,9 +31,11 @@ public class ExchangeRateService {
         String optionalExchangeRateUrl = String.format("%s/v2.0/rates/latest?symbols=%s&apikey=%s", OPTIONAL_EXCHANGE_RATE_API_BASE_URL, currency, optionalExchangeRatesApiKey); // Up to 1k requests. ;
 
         ExchangeRateResponse ratesFromMainSource = buildExchangeRates(mainExchangeRateUrl);
-        ExchangeRateResponse ratesFromOptionalSource = buildExchangeRates(optionalExchangeRateUrl);
 
-        return ratesFromMainSource != null ? ratesFromMainSource : ratesFromOptionalSource;
+        if (ratesFromMainSource != null) {
+            return ratesFromMainSource;
+        }
+        return buildExchangeRates(optionalExchangeRateUrl);
     }
 
     private ExchangeRateResponse buildExchangeRates(String url) {
