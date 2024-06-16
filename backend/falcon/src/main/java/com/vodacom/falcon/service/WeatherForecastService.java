@@ -43,7 +43,7 @@ public class WeatherForecastService {
             return null;
         }
 
-        String url = String.format("%s/data/%s/onecall?units=metric&cnt=4&exclude=hourly,minutely,alerts&lat=%s&lon=%s&appid=%s", FalconDefaults.OPEN_WEATHER_BASE_URL, OPEN_WEATHER_API_VERSION, location.getLat(), location.getLon(), openWeatherApiKeyV2);
+        String url = String.format("%s/data/%s/onecall?units=metric&cnt=4&exclude=hourly,minutely,alerts&lat=%s&lon=%s&appid=%s", FalconDefaults.OPEN_WEATHER_API_BASE_URL, OPEN_WEATHER_API_VERSION, location.getLat(), location.getLon(), openWeatherApiKeyV2);
         HttpResponse<String> response = APICaller.getData(url);
         if (response != null) {
             OpenWeatherForecastResponse openWeatherForecast = deserialize(response.body(), OpenWeatherForecastResponse.class);
@@ -56,7 +56,7 @@ public class WeatherForecastService {
     }
 
     private OpenLocationResponse getLocation(String city) {
-        String url = String.format("%s/geo/1.0/direct?limit=1&q=%s&appid=%s", FalconDefaults.OPEN_WEATHER_BASE_URL, city, openWeatherApiKeyV3);
+        String url = String.format("%s/geo/1.0/direct?limit=1&q=%s&appid=%s", FalconDefaults.OPEN_WEATHER_API_BASE_URL, city, openWeatherApiKeyV3);
 
         HttpResponse<String> response = APICaller.getData(url);
         if (response != null) {

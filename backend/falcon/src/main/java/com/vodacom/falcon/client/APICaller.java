@@ -15,7 +15,7 @@ public class APICaller {
     private static final Logger LOGGER = LoggerFactory.getLogger(APICaller.class);
 
     public static HttpResponse<String> getData(String url) {
-        LOGGER.info("Getting data from {}... url ", url.substring(0, 50));
+        LOGGER.info("Getting data from {}... url ", url);
 
         try {
             HttpRequest request = HttpRequest.newBuilder()
