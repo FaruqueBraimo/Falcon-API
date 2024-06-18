@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import static com.vodacom.falcon.util.FalconDefaults.WB_FILTER_DATE;
 
@@ -26,21 +27,30 @@ public class InsightService {
     private final EconomyInsightService economyInsightService;
     private final WeatherForecastService weatherForecastService;
     private final ExchangeRateService exchangeRateService;
+    private final CountryMetadataService countryMetadataService;
 
     public InsightResponse getInsight(String city) {
         log.info("Getting insights for {}", city);
+        MetadataResponse metadata = new MetadataResponse();
 
         String encodedCity = URLEncoder.encode(city, StandardCharsets.UTF_8);
 
-        WeatherForecastResponse weatherForecast = weatherForecastService.getWeatherForecast(encodedCity);
+        String countryCode = countryMetadataService.getCountryCode(encodedCity);
+        WeatherForecastResponse weatherForecast = new WeatherForecastResponse();
+        metadata.setCountry(true);
 
-        String countryCode = weatherForecast
-                .getForecast()
-                .getLocation()
-                .getCountryCode();
+        if (Objects.isNull(countryCode)) {
+            weatherForecast = weatherForecastService.getWeatherForecast(encodedCity);
+            countryCode = weatherForecast
+                    .getForecast()
+                    .getLocation()
+                    .getCountryCode();
+
+            metadata.setCountry(false);
+
+        }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        MetadataResponse metadata = new MetadataResponse();
         metadata.setAuthenticatedUser(true);
         metadata.setMessage("Enjoy your destination %s! ");
 

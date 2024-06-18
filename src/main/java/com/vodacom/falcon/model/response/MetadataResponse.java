@@ -13,5 +13,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class MetadataResponse {
     private boolean isAuthenticatedUser;
+    private boolean isCountry;
     private String message;
 }
