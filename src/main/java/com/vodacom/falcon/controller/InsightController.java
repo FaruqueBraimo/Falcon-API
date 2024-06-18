@@ -28,7 +28,7 @@ public class InsightController {
     }
 
     @GetMapping("/historical")
-    public ResponseEntity<HistoricalEconomyInsightResponse> getHistoricalInsights(@RequestParam("city") String city) {
+    public ResponseEntity<HistoricalEconomyInsightResponse> getHistoricalInsights(@RequestParam("city") String city) throws InterruptedException {
         HistoricalEconomyInsightResponse response = falconInsightService.getHistoricalInsights(city);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

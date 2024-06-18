@@ -1,6 +1,7 @@
 package com.vodacom.falcon.client;
 
 import dev.failsafe.Failsafe;
+import dev.failsafe.RateLimiter;
 import dev.failsafe.RetryPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,14 +10,13 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 public class APICaller {
     private static final Logger LOGGER = LoggerFactory.getLogger(APICaller.class);
 
     public static HttpResponse<String> getData(String url) {
-        LOGGER.info("Getting data from {}... url ", url);
-
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -32,14 +32,18 @@ public class APICaller {
     }
 
     private static HttpResponse<String> getDataWithFaultTolerance(HttpRequest request) {
-        return Failsafe.with(buildRetryPolicy()).get(() -> {
-            HttpResponse<String> response = buildHttpClient()
-                    .send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                throw new Exception(String.format("Error requesting resource: %s with status code: %s , body: %s", request.uri(), response.statusCode(), response.body()));
-            }
-            return response;
-        });
+        if (getRateLimit().tryAcquirePermit()) {
+            return Failsafe.with(buildRetryPolicy()).get(() -> {
+                HttpResponse<String> response = buildHttpClient()
+                        .send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                    throw new Exception(String.format("Error requesting resource: %s with status code: %s , body: %s", request.uri(), response.statusCode(), response.body()));
+                }
+                return response;
+            });
+        }
+
+        return null;
     }
 
     private static RetryPolicy<HttpResponse<String>> buildRetryPolicy() {
@@ -50,6 +54,10 @@ public class APICaller {
                 .onRetry(event -> LOGGER.info("Retry: {} ", event.getAttemptCount()))
                 .onFailedAttempt(event -> LOGGER.warn("Error requesting: {}", event.getAttemptCount()))
                 .build();
+    }
+
+    private static RateLimiter<Object> getRateLimit() {
+        return RateLimiter.burstyBuilder(3, Duration.ofSeconds(10)).build();
     }
 
     private static HttpClient buildHttpClient() {
