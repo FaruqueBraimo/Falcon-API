@@ -5,6 +5,8 @@ import com.vodacom.falcon.model.response.InsightResponse;
 import com.vodacom.falcon.service.InsightService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("falcon/insight")
+@EnableCaching
 public class InsightController {
     private final InsightService falconInsightService;
 
@@ -28,6 +31,7 @@ public class InsightController {
     }
 
     @GetMapping("/historical")
+    @Cacheable(key = "#city", value = "historical")
     public ResponseEntity<HistoricalEconomyInsightResponse> getHistoricalInsights(@RequestParam("city") String city) throws InterruptedException {
         HistoricalEconomyInsightResponse response = falconInsightService.getHistoricalInsights(city);
         return new ResponseEntity<>(response, HttpStatus.OK);

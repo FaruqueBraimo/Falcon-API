@@ -12,9 +12,12 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.List;
 
 public class APICaller {
     private static final Logger LOGGER = LoggerFactory.getLogger(APICaller.class);
+    private static final List<Integer> UNKNOWN_CODE_ERRORS = List.of(400, 401, 403, 404, 408, 500, 504, 505);
 
     public static HttpResponse<String> getData(String url) {
         try {
@@ -36,7 +39,8 @@ public class APICaller {
             return Failsafe.with(buildRetryPolicy()).get(() -> {
                 HttpResponse<String> response = buildHttpClient()
                         .send(request, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() < 200 || response.statusCode() >= 300) {
+
+                if (response.statusCode() != 200 && !UNKNOWN_CODE_ERRORS.contains(response.statusCode())) {
                     throw new Exception(String.format("Error requesting resource: %s with status code: %s , body: %s", request.uri(), response.statusCode(), response.body()));
                 }
                 return response;

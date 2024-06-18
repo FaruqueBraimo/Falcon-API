@@ -25,6 +25,7 @@ import static com.vodacom.falcon.util.FalconDefaults.WB_RANGE_FILTER_DATE;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+
 public class InsightService {
 
     private final EconomyInsightService economyInsightService;

@@ -9,6 +9,9 @@ import com.vodacom.falcon.model.response.workdbank.PopulationResponse;
 import com.vodacom.falcon.model.response.workdbank.WordBankObjectResponse;
 import com.vodacom.falcon.util.FalconDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -31,8 +34,11 @@ import static com.vodacom.falcon.util.JsonUtil.serialize;
 
 @Service
 @Slf4j
+@EnableCaching
 public class EconomyInsightService {
 
+
+    @Cacheable(key = "#countryCode", value = "insights")
     public EconomyInsightResponse getEconomyInsight(String countryCode, Integer date) {
         String url = String.format("%s/v2/country/%s/indicator/%s;%s/?source=2&date=%s&format=json", FalconDefaults.WORD_BANK_API_BASE_URL, countryCode.toLowerCase(), WB_POPULATION_INDICATOR_PARAM, FalconDefaults.WB_GDP_INDICATOR_PARAM, date);
         HttpResponse<String> response = APICaller.getData(url);

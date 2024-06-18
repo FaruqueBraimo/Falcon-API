@@ -30,7 +30,6 @@ public class CustomFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("Internal filter {}", request.getPathInfo());
         if (isBasicAuth(request)) {
             String base64 = this.getHeader(request)
                     .replace(BASIC, "");
