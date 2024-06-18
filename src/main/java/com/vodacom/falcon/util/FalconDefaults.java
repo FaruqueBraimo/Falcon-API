@@ -9,4 +9,6 @@ public class FalconDefaults {
     public static final String MAIN_EXCHANGE_RATE_API_BASE_URL = "http://api.exchangeratesapi.io";
     public static final String OPTIONAL_EXCHANGE_RATE_API_BASE_URL = "https://api.currencyfreaks.com";
     public static final String COUNTRY_API_BASE_URL = "https://countriesnow.space";
+    public static final String AUTHORIZATION = "Authorization";
+    public static final String BASIC = "Basic ";
 }

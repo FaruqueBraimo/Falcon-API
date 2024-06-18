@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class InsightResponse {
+    private MetadataResponse metadata;
     private EconomyInsightResponse economyInsight;
     private ExchangeRateResponse exchangeRate;
     private WeatherForecastResponse weatherForecast;

@@ -32,9 +32,9 @@ public class ExchangeRateService {
 
         ExchangeRateResponse ratesFromMainSource = buildExchangeRates(mainExchangeRateUrl);
 
-        if (ratesFromMainSource != null) {
-            return ratesFromMainSource;
-        }
+//        if (ratesFromMainSource != null) {
+//            return ratesFromMainSource;
+//        }
         return buildExchangeRates(optionalExchangeRateUrl);
     }
 

@@ -61,13 +61,11 @@ public class WeatherForecastService {
         HttpResponse<String> response = APICaller.getData(url);
         if (response != null) {
             Object[] object = deserialize(response.body(), Object[].class);
-            if (object != null && object[0] != null) {
-                return deserializeByTypeReference(serialize(object[0]), new TypeReference<>() {
-                });
+            if (object != null) {
+                return object[0] != null ? deserializeByTypeReference(serialize(object[0]), new TypeReference<>() {
+                }) : null;
             }
         }
         return null;
     }
-
-
 }

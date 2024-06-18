@@ -1,12 +1,26 @@
 server:
   port: 8083
 
-#  FIXME: Temporally available, for testing propose. SHOULD REMOVE them.
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/falcon # ${db}
+    username: admin # ${user}
+    password: 123
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+#  FIXME: SECURITY CONCERN !!!
+#  THE FOLLOWING KEYS WERE NOT SUPPOSED TO BE CLEAR, BUT LEAVING AS THEY ARE FOR YOUR TESTING.
+
 open-weather-map:
-  apiKeyV2: bd5e378503939ddaee76f12ad7a97608 # random from https://gist.github.com/lalithabacies/c8f973dc6754384d6cade282b64a8cb1
-  apiKeyV3: 87ec2b8f0b40a00a3bdaf5f31953a186
+  apiKeyV2: bd5e378503939ddaee76f12ad7a97608 # ${openWeatherApiKeyV2} random from https://gist.github.com/lalithabacies/c8f973dc6754384d6cade282b64a8cb1
+  apiKeyV3: 87ec2b8f0b40a00a3bdaf5f31953a186 # ${openWeatherApiKeyV3}
 
 main-exchange-rates-api:
-  apiKey: c771abe4cb5cfe85674fae5142290f1a
+  apiKey: c771abe4cb5cfe85674fae5142290f1a # ${exchangeRatesApiKey}
 optional-exchange-rates-api:
-  apiKey: dc7d9a4fe0e74557b0b83a1fcf66dd2a
+  apiKey: dc7d9a4fe0e74557b0b83a1fcf66dd2a # ${exchangeRatesApiKey}

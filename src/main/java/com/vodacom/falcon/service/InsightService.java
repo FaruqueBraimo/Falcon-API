@@ -3,9 +3,14 @@ package com.vodacom.falcon.service;
 import com.vodacom.falcon.model.response.EconomyInsightResponse;
 import com.vodacom.falcon.model.response.ExchangeRateResponse;
 import com.vodacom.falcon.model.response.InsightResponse;
+import com.vodacom.falcon.model.response.MetadataResponse;
 import com.vodacom.falcon.model.response.WeatherForecastResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
@@ -29,13 +34,30 @@ public class InsightService {
 
         WeatherForecastResponse weatherForecast = weatherForecastService.getWeatherForecast(encodedCity);
 
-        String countryCode = weatherForecast.getForecast().getLocation().getCountryCode();
+        String countryCode = weatherForecast
+                .getForecast()
+                .getLocation()
+                .getCountryCode();
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        MetadataResponse metadata = new MetadataResponse();
+        metadata.setAuthenticatedUser(true);
+        metadata.setMessage("Enjoy your destination %s! ");
+
+        ExchangeRateResponse exchangeRateResponse = exchangeRateService.getExchangeRates(countryCode);
+
+        if (authentication instanceof AnonymousAuthenticationToken) {
+            metadata.setAuthenticatedUser(false);
+            metadata.setMessage("Please login, to see Weather Forecast and Exchange Rates");
+            weatherForecast = null;
+            exchangeRateResponse = null;
+        }
 
         EconomyInsightResponse economyInsight = economyInsightService.getEconomyInsight(countryCode, WB_FILTER_DATE);
-        ExchangeRateResponse exchangeRateResponse = exchangeRateService.getExchangeRates(countryCode);
 
         return InsightResponse
                 .builder()
+                .metadata(metadata)
                 .economyInsight(economyInsight)
                 .weatherForecast(weatherForecast)
                 .exchangeRate(exchangeRateResponse)
