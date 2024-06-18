@@ -1,5 +1,6 @@
 package com.vodacom.falcon.controller;
 
+import com.vodacom.falcon.model.response.HistoricalEconomyInsightResponse;
 import com.vodacom.falcon.model.response.InsightResponse;
 import com.vodacom.falcon.service.InsightService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,12 @@ public class InsightController {
     @GetMapping()
     public ResponseEntity<InsightResponse> getInsight(@RequestParam("city") String city) {
         InsightResponse response = falconInsightService.getInsight(city);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/historical")
+    public ResponseEntity<HistoricalEconomyInsightResponse> getHistoricalInsights(@RequestParam("city") String city) {
+        HistoricalEconomyInsightResponse response = falconInsightService.getHistoricalInsights(city);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

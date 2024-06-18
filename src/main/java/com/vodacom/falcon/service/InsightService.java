@@ -2,6 +2,7 @@ package com.vodacom.falcon.service;
 
 import com.vodacom.falcon.model.response.EconomyInsightResponse;
 import com.vodacom.falcon.model.response.ExchangeRateResponse;
+import com.vodacom.falcon.model.response.HistoricalEconomyInsightResponse;
 import com.vodacom.falcon.model.response.InsightResponse;
 import com.vodacom.falcon.model.response.MetadataResponse;
 import com.vodacom.falcon.model.response.WeatherForecastResponse;
@@ -15,9 +16,11 @@ import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
 
 import static com.vodacom.falcon.util.FalconDefaults.WB_FILTER_DATE;
+import static com.vodacom.falcon.util.FalconDefaults.WB_RANGE_FILTER_DATE;
 
 @Service
 @Slf4j
@@ -72,5 +75,18 @@ public class InsightService {
                 .weatherForecast(weatherForecast)
                 .exchangeRate(exchangeRateResponse)
                 .build();
+    }
+
+
+    public HistoricalEconomyInsightResponse getHistoricalInsights(String city) {
+        log.info("Getting insights for {}", city);
+
+        String encodedCity = URLEncoder.encode(city, StandardCharsets.UTF_8);
+        String countryCode = countryMetadataService.getCountryCode(encodedCity);
+
+        if (Objects.nonNull(countryCode)) {
+            return economyInsightService.getHistoricalEconomyInsight(countryCode, WB_RANGE_FILTER_DATE);
+        }
+        return null;
     }
 }
