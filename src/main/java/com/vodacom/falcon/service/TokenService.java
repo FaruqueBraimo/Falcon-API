@@ -21,7 +21,6 @@ public class TokenService {
     public String generateToken(User user) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(key);
-
             return JWT.create()
                     .withIssuer("falcon")
                     .withSubject(user.getUsername())
@@ -48,6 +47,6 @@ public class TokenService {
 
 
     private Instant getExpirationDate() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+        return LocalDateTime.now().plusHours(24).toInstant(ZoneOffset.of("-03:00"));
     }
 }

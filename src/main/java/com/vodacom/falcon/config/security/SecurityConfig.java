@@ -26,7 +26,7 @@ public class SecurityConfig {
     private CustomFilter filter;
     private static final String[] AUTH_WHITELIST = {
             "falcon/auth/**",
-            "falcon/insight/",
+            "falcon/insight",
             "/v3/api-docs/**",
             "/swagger-ui/**"
     };

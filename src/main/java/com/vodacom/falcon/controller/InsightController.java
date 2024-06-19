@@ -25,12 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(value = "*")
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("falcon/insight")
 @EnableCaching
 public class InsightController {
     private final InsightService falconInsightService;
 
-    @GetMapping()
+    @GetMapping("falcon/insight")
     @Operation(summary = "Get insight by city", description = "Should return population, gdp, exchange rates, weather forecast. The last 2 if the user is authenticated")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = String.class), mediaType = "application/json")}),
@@ -42,7 +41,7 @@ public class InsightController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/historical")
+    @GetMapping("falcon/insights/historical")
     @Operation(summary = "Get historical insights by country", description = "Should return population and gdp from 2012 to 2022 for given country")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = String.class), mediaType = "application/json")}),
