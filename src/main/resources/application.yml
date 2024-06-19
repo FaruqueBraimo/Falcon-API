@@ -24,3 +24,6 @@ main-exchange-rates-api:
   apiKey: c771abe4cb5cfe85674fae5142290f1a # ${exchangeRatesApiKey}
 optional-exchange-rates-api:
   apiKey: dc7d9a4fe0e74557b0b83a1fcf66dd2a # ${exchangeRatesApiKey}
+
+jwt:
+  key: 0cd1833b-62b4-415c-902f-1e69138fd2a8
