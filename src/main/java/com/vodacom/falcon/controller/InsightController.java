@@ -37,6 +37,8 @@ public class InsightController {
             @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema(implementation = String.class), mediaType = "application/json")})
     })
     public ResponseEntity<InsightResponse> getInsight(@RequestParam("city") @Valid String city) {
+
+
         InsightResponse response = falconInsightService.getInsight(city);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
