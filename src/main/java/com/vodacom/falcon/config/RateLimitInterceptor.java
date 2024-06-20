@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.time.Duration;
+import java.util.TooManyListenersException;
 
 @Component
 public class RateLimitInterceptor implements HandlerInterceptor {
@@ -35,8 +36,8 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         if (bucket.tryConsume(1)) {
             return true;
         }
-
-        response.sendError(HttpStatus.TOO_MANY_REQUESTS.value(), "You have exhausted your API Request Quota");
-        return false;
+        String message = "Getting too many requests. Too prevent abusive usage, please try again later ";
+        response.sendError(HttpStatus.TOO_MANY_REQUESTS.value(), message);
+        throw new TooManyListenersException(message);
     }
 }

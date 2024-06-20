@@ -10,6 +10,7 @@ import com.vodacom.falcon.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -34,7 +36,7 @@ public class AuthService implements UserDetailsService {
     public void createUser(UserRegistrationRequest auth) {
         User existingUser = userRepository.findByUsername(auth.username());
         if (existingUser != null) {
-            throw new Error("User already exists! Please login");
+            throw new DuplicateKeyException("User already exists! Please login");
         }
 
         User user = User.builder()
@@ -56,6 +58,11 @@ public class AuthService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username);
+
+        if (Objects.isNull(user)) {
+            throw new UsernameNotFoundException("");
+        }
+        return user;
     }
 }

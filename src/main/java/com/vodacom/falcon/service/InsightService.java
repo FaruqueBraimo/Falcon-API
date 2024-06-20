@@ -1,22 +1,23 @@
 package com.vodacom.falcon.service;
 
+import com.vodacom.falcon.config.exception.ResourceNotFoundException;
 import com.vodacom.falcon.model.response.EconomyInsightResponse;
 import com.vodacom.falcon.model.response.ExchangeRateResponse;
 import com.vodacom.falcon.model.response.HistoricalEconomyInsightResponse;
 import com.vodacom.falcon.model.response.InsightResponse;
 import com.vodacom.falcon.model.response.MetadataResponse;
 import com.vodacom.falcon.model.response.WeatherForecastResponse;
+import com.vodacom.falcon.util.ValidationFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Objects;
 
 import static com.vodacom.falcon.util.FalconDefaults.WB_FILTER_DATE;
@@ -33,8 +34,10 @@ public class InsightService {
     private final ExchangeRateService exchangeRateService;
     private final CountryMetadataService countryMetadataService;
 
-    public InsightResponse getInsight(String city) {
+    public InsightResponse getInsight(String city) throws ResourceNotFoundException {
         log.info("Getting insights for {}", city);
+        ValidationFactory.validateSearch("Country", city);
+
         MetadataResponse metadata = new MetadataResponse();
 
         String encodedCity = URLEncoder.encode(city, StandardCharsets.UTF_8);
@@ -51,7 +54,10 @@ public class InsightService {
                     .getCountryCode();
 
             metadata.setCountry(false);
+        }
 
+        if (countryCode == null) {
+            throw new ResourceNotFoundException(String.format("City: %s Not found", city));
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -79,15 +85,19 @@ public class InsightService {
     }
 
 
-    public HistoricalEconomyInsightResponse getHistoricalInsights(String city) {
-        log.info("Getting insights for {}", city);
+    public HistoricalEconomyInsightResponse getHistoricalInsights(String country) throws ResourceNotFoundException {
+        log.info("Getting insights for {}", country);
+        ValidationFactory.validateSearch("Country", country);
 
-        String encodedCity = URLEncoder.encode(city, StandardCharsets.UTF_8);
+        String encodedCity = URLEncoder.encode(country, StandardCharsets.UTF_8);
         String countryCode = countryMetadataService.getCountryCode(encodedCity);
 
         if (Objects.nonNull(countryCode)) {
             return economyInsightService.getHistoricalEconomyInsight(countryCode, WB_RANGE_FILTER_DATE);
         }
-        return null;
+        throw new ResourceNotFoundException(String.format("Country: %s Not found", country));
+
     }
+
+
 }
