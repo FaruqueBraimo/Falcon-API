@@ -36,7 +36,7 @@ public class InsightService {
 
     public InsightResponse getInsight(String city) throws ResourceNotFoundException {
         log.info("Getting insights for {}", city);
-        ValidationFactory.validateSearch("Country", city);
+        ValidationFactory.validateSearch("City", city);
 
         MetadataResponse metadata = new MetadataResponse();
 

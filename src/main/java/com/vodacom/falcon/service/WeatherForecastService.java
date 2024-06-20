@@ -26,9 +26,8 @@ public class WeatherForecastService {
     @Value("${open-weather-map.apiKeyV3}")
     private String openWeatherApiKeyV3;
 
-    private final String OPEN_WEATHER_API_VERSION = "2.5"; // TODO: Add feature flag Or row controller, to determine the version to use. (2.5 0r 3.0)
+    private final String OPEN_WEATHER_API_VERSION = "3.0"; // TODO: Add feature flag Or row controller, to determine the version to use. (2.5 0r 3.0)
 
-    // TODO: CACHE THE RESPONSE
     public WeatherForecastResponse getWeatherForecast(String city) throws ResourceNotFoundException {
         return WeatherForecastResponse
                 .builder()
@@ -41,10 +40,10 @@ public class WeatherForecastService {
 
         if (location == null) {
             log.info("Couldn't find location for {}", city);
-            throw new ResourceNotFoundException(String.format("Location: %s Not found", city));
+            throw new ResourceNotFoundException(String.format("City: %s Not found", city));
         }
 
-        String url = String.format("%s/data/%s/onecall?units=metric&cnt=4&exclude=hourly,minutely,alerts&lat=%s&lon=%s&appid=%s", FalconDefaults.OPEN_WEATHER_API_BASE_URL, OPEN_WEATHER_API_VERSION, location.getLat(), location.getLon(), openWeatherApiKeyV2);
+        String url = String.format("%s/data/%s/onecall?units=metric&cnt=4&exclude=hourly,minutely,alerts&lat=%s&lon=%s&appid=%s", FalconDefaults.OPEN_WEATHER_API_BASE_URL, OPEN_WEATHER_API_VERSION, location.getLat(), location.getLon(), openWeatherApiKeyV3);
         HttpResponse<String> response = APICaller.getData(url);
         if (response != null) {
             OpenWeatherForecastResponse openWeatherForecast = deserialize(response.body(), OpenWeatherForecastResponse.class);
