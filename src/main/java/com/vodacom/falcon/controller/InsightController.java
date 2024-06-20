@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.ExecutionException;
+
 @RestController
 @CrossOrigin(value = "*")
 @RequiredArgsConstructor
@@ -37,7 +39,7 @@ public class InsightController {
             @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema(implementation = String.class), mediaType = "application/json")}, description = "When the city is not valid or found"),
             @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema(implementation = String.class), mediaType = "application/json")}, description = "When unknown error happens")
     })
-    public ResponseEntity<InsightResponse> getInsight(@RequestParam("city") String city) throws ResourceNotFoundException {
+    public ResponseEntity<InsightResponse> getInsight(@RequestParam("city") String city) throws ResourceNotFoundException, ExecutionException, InterruptedException {
         InsightResponse response = falconInsightService.getInsight(city);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

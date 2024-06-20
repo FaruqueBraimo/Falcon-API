@@ -14,11 +14,12 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static com.vodacom.falcon.util.FalconDefaults.WB_FILTER_DATE;
 import static com.vodacom.falcon.util.FalconDefaults.WB_RANGE_FILTER_DATE;
@@ -34,7 +35,7 @@ public class InsightService {
     private final ExchangeRateService exchangeRateService;
     private final CountryMetadataService countryMetadataService;
 
-    public InsightResponse getInsight(String city) throws ResourceNotFoundException {
+    public InsightResponse getInsight(String city) throws ResourceNotFoundException, ExecutionException, InterruptedException {
         log.info("Getting insights for {}", city);
         ValidationFactory.validateSearch("City", city);
 
@@ -42,12 +43,33 @@ public class InsightService {
 
         String encodedCity = URLEncoder.encode(city, StandardCharsets.UTF_8);
 
-        String countryCode = countryMetadataService.getCountryCode(encodedCity);
+        String countryCode = null;
+
+        CompletableFuture<String> countryTaskResponse = CompletableFuture
+                .supplyAsync(() -> countryMetadataService.getCountryCode(encodedCity))
+                .exceptionally(
+                        (e) -> {
+                            log.error("Error getting country data ");
+                            throw new RuntimeException(e.getMessage());
+                        });
+
+        CompletableFuture<WeatherForecastResponse> weatherForecastTaskResponse = CompletableFuture
+                .supplyAsync(() -> weatherForecastService.getWeatherForecast(encodedCity))
+                .exceptionally(
+                        (e) -> {
+                            log.error("Error getting weather ");
+                            throw new RuntimeException(e.getMessage());
+                        });
+
+        CompletableFuture<Void> combinedCountryFuture = CompletableFuture.allOf(countryTaskResponse, weatherForecastTaskResponse);
+
+        combinedCountryFuture.join();
+
         WeatherForecastResponse weatherForecast = new WeatherForecastResponse();
         metadata.setCountry(true);
 
-        if (Objects.isNull(countryCode)) {
-            weatherForecast = weatherForecastService.getWeatherForecast(encodedCity);
+        if (Objects.isNull(countryTaskResponse.get())) {
+            weatherForecast = weatherForecastTaskResponse.get();
             countryCode = weatherForecast
                     .getForecast()
                     .getLocation()
@@ -60,11 +82,33 @@ public class InsightService {
             throw new ResourceNotFoundException(String.format("City: %s Not found", city));
         }
 
+        String finalCountryCode = countryCode;
+        CompletableFuture<EconomyInsightResponse> economyTaskResponse = CompletableFuture
+                .supplyAsync(() -> economyInsightService.getEconomyInsight(finalCountryCode, WB_FILTER_DATE))
+                .exceptionally(
+                        (e) -> {
+                            log.error("Error getting economy data ");
+                            throw new RuntimeException(e.getMessage());
+                        });
+
+        CompletableFuture<ExchangeRateResponse> exchangeRateTaskResponse = CompletableFuture
+                .supplyAsync(() -> exchangeRateService.getExchangeRates(finalCountryCode))
+                .exceptionally(
+                        (e) -> {
+                            log.error("Error getting exchanges ");
+                            throw new RuntimeException(e.getMessage());
+                        }
+                );
+
+        CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(economyTaskResponse, exchangeRateTaskResponse);
+
+        combinedFuture.join();
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         metadata.setAuthenticatedUser(true);
         metadata.setMessage("Enjoy your destination %s! ");
 
-        ExchangeRateResponse exchangeRateResponse = exchangeRateService.getExchangeRates(countryCode);
+        ExchangeRateResponse exchangeRateResponse = exchangeRateTaskResponse.get();
 
         if (authentication instanceof AnonymousAuthenticationToken) {
             metadata.setAuthenticatedUser(false);
@@ -73,7 +117,7 @@ public class InsightService {
             exchangeRateResponse = null;
         }
 
-        EconomyInsightResponse economyInsight = economyInsightService.getEconomyInsight(countryCode, WB_FILTER_DATE);
+        EconomyInsightResponse economyInsight = economyTaskResponse.get();
 
         return InsightResponse
                 .builder()
