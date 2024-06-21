@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 @Setter
 @AllArgsConstructor
 @Builder
+@ToString
 public class InsightResponse {
     private MetadataResponse metadata;
     private EconomyInsightResponse economyInsight;

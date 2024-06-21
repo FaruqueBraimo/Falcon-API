@@ -68,7 +68,9 @@ public class InsightService {
         WeatherForecastResponse weatherForecast = new WeatherForecastResponse();
         metadata.setCountry(true);
 
-        if (Objects.isNull(countryTaskResponse.get())) {
+        countryCode = countryTaskResponse.get();
+
+        if (Objects.isNull(countryCode)) {
             weatherForecast = weatherForecastTaskResponse.get();
             countryCode = weatherForecast
                     .getForecast()
