@@ -18,6 +18,7 @@ A Java application project for travel assistance.
 - [Database](#database)
 - [Swagger Endpoint](#swagger)
 - [How it works?](#how-it-works)
+- [How it works?](#how-it-works)
 ## Prerequisites
 
 1. JDK 17 or Higher
@@ -94,5 +95,8 @@ The main endpoint is /falcon/insight, it can retrieve a population, gdp, exchang
   - It handles API failure by retrying few times, before giving up using Failsafe. 
   - /falcon/insights/historical is just for gdp and population. If a country is given.
  
-
+## Performance
+- It makes 4/5 API Calls for data achievement, those endpoints take seconds to respond. asynchronous tasks are executed on task that don't depend on each other, this improved the performance, from 7s to 2.5.
+- The average response time is 2.5 seconds for the main endpoint /insigh/city. When running the same query again it shoud around 1332 milliseconds.
+- It could take longer 5s on the first atempt when the application is starting. The subsequent requests should be faster, without caching.
 
